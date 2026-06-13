@@ -1,16 +1,17 @@
+# Modified by Achmad Muhajir (22/500339/TK/54839)
 PROJECT:=pulpemu
 
 all: synth
 
 synth:
 	vivado -mode batch -source tcl/run.tcl
-	cp pulpemu.runs/impl_1/pulpemu_top.bit pulpemu_top.bit
+	cp ${PROJECT}.runs/impl_1/${PROJECT}_top.bit .
 
 impl:
 	rm -rf .Xil
-	vivado -mode batch -source tcl/impl.tcl
-	cp pulpemu_top.runs/impl_1/pulpemu_top.bit .
-	cp pulpemu_top.runs/impl_1/*.dcp .
+	vivado -mode batch -source tcl/impl.tcl ${PROJECT}.xpr
+	cp ${PROJECT}.runs/impl_1/${PROJECT}_top.bit .
+	cp pulpemu.runs/impl_1/*.dcp .
 
 gui-synth:
 	vivado -mode gui -source tcl/run.tcl &
@@ -19,10 +20,10 @@ gui-impl:
 	vivado -mode gui -source tcl/impl.tcl &
 
 continue:
-	vivado -mode gui pulpemu_top.xpr
+	vivado -mode gui ${PROJECT}.xpr
 
 clean-impl:
-	rm -rf pulpemu_top*
+	rm -rf ${PROJECT}_top*
 
 clean:
 	rm -rf ${PROJECT}.hw
@@ -42,7 +43,10 @@ clean:
 	rm -rf vivado*
 	rm -rf xgui
 	rm -rf .Xil
-	rm -rf ps_clock*
 	rm -rf pulpemu_top*
 	rm -rf pulpemu.edf
-
+	rm -rf ${PROJECT}.gen
+	rm -rf ${PROJECT}.ip_user_files
+	rm -rf dfx_runtime.txt
+	rm -rf *.dcp
+	rm -rf *.txt
