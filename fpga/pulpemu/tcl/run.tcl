@@ -52,6 +52,9 @@ source tcl/ps7_bd.tcl
 # validate
 validate_bd_design
 
+# Added by Achmad Muhajir (22/500339/TK/54839)
+set_property synth_checkpoint_mode None [get_files ./pulpemu.srcs/sources_1/bd/ps7/ps7.bd]
+
 # generate
 generate_target all [get_files ./pulpemu.srcs/sources_1/bd/ps7/ps7.bd]
 make_wrapper -files [get_files ./pulpemu.srcs/sources_1/bd/ps7/ps7.bd] -top
@@ -66,9 +69,9 @@ add_files -norecurse ../rtl/pulpemu_top.v
 update_compile_order -fileset sources_1
 update_compile_order -fileset sim_1
 
-# add pulpino
+# add pulpino - Modified by Achmad Muhajir (22/500339/TK/54839)
 if { $::env(USE_ZERO_RISCY)==0 & $::env(RISCY_RV32F)==1 } {
-    add_files -norecurse ../pulpino/pulpino.edn \
+    add_files -norecurse [glob ../pulpino/*.edn] \
 	../pulpino/pulpino_stub.v \
 	../ips/xilinx_fp_fma/ip/xilinx_fp_fma_stub.vhdl \
 	../ips/xilinx_fp_fma/ip/xilinx_fp_fma_stub.v \
@@ -76,7 +79,7 @@ if { $::env(USE_ZERO_RISCY)==0 & $::env(RISCY_RV32F)==1 } {
 	../pulpino/xilinx_fp_fma_mult_gen_v12_0_viv.edn \
 	../ips/xilinx_clock_manager/ip/xilinx_clock_manager.dcp
 } else {
-    add_files -norecurse ../pulpino/pulpino.edn \
+    add_files -norecurse [glob ../pulpino/*.edn] \
 	../pulpino/pulpino_stub.v \
 	../ips/xilinx_clock_manager/ip/xilinx_clock_manager.dcp
 }
@@ -101,5 +104,8 @@ open_run synth_1 -name netlist_1
 # export hardware design for sdk
 write_hwdef -force -file ./pulpemu.hwdef
 
+# Added by Achmad Muhajir (22/500339/TK/54839)
+save_constraints
+
 # run implementation
-source tcl/impl.tcl
+source tcl/impl.tcl 

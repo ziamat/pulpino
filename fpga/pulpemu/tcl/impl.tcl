@@ -241,6 +241,10 @@ save_constraints
 # set_property "steps.route_design.args.directive" "RuntimeOptimized" [get_runs impl_1]
 set_property strategy Area_Explore [get_runs impl_1]
 
+# Added by Achmad Muhajir (22/500339/TK/54839)
+set_property STEPS.OPT_DESIGN.TCL.PRE [file normalize "tcl/pre_opt.tcl"] [get_runs impl_1]
+set_property STEPS.PLACE_DESIGN.TCL.PRE [file normalize "tcl/pre_place.tcl"] [get_runs impl_1]
+
 launch_runs impl_1
 wait_on_run impl_1
 launch_runs impl_1 -to_step write_bitstream
