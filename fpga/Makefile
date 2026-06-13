@@ -1,31 +1,63 @@
 # Modified by Achmad Muhajir (22/500339/TK/54839)
-NAME:=RISCY
-PROJECT:=pulpino
 
-all:
-	vivado -mode batch -source tcl/run.tcl
-# ./postsynth_names.py
+all: ips pulpino pulpemu
+# sw is commented because it must be run on Linux (WSL) for toolchain dependency
 
-gui:
-	vivado -mode gui -source tcl/run.tcl &
+.PHONY: ips
+ips: clk mem fp_fma
 
+
+.PHONY: clk
+clk: ips/xilinx_clock_manager/ip/xilinx_clock_manager.dcp
+
+ips/xilinx_clock_manager/ip/xilinx_clock_manager.dcp:
+	make -C ips/xilinx_clock_manager/ all
+
+
+.PHONY: mem
+mem: ips/xilinx_mem_8192x32/ip/xilinx_mem_8192x32.dcp
+
+ips/xilinx_mem_8192x32/ip/xilinx_mem_8192x32.dcp:
+	make -C ips/xilinx_mem_8192x32/ all
+
+
+.PHONY: mem_dp
+mem_dp: ips/xilinx_mem_32768x32_dp/ip/xilinx_mem_32768x32_dp.dcp
+
+ips/xilinx_mem_32768x32_dp/ip/xilinx_mem_32768x32_dp.dcp:
+	make -C ips/xilinx_mem_32768x32_dp/ all
+
+.PHONY: fp_fma
+fp_fma: ips/xilinx_fp_fma/ip/xilinx_fp_fma.dcp
+
+ips/xilinx_fp_fma/ip/xilinx_fp_fma.dcp:
+	make -C ips/xilinx_fp_fma/ all
+
+.PHONY: pulpino
+pulpino: pulpino/pulpino.edf
+
+pulpino/pulpino.edf:
+	make -C pulpino all
+
+
+.PHONY: pulpemu
+pulpemu: pulpemu/pulpemu_top.bit
+
+pulpemu/pulpemu_top.bit:
+	make -C pulpemu all
+
+
+#.PHONY: sw
+#sw:
+#	make -C sw all
+
+
+.PHONY: clean
 clean:
-	rm -rf ${PROJECT}.xpr
-	rm -rf ${PROJECT}.data
-	rm -rf ${PROJECT}.runs
-	rm -rf ${PROJECT}.srcs
-	rm -rf ${PROJECT}.sim
-	rm -rf ${PROJECT}.cache
-	rm -rf ${PROJECT}.ioplanning
-	rm -rf ${PROJECT}.hw
-	rm -rf component.xml
-	rm -rf vivado*
-	rm -rf .Xil
-	rm -rf xgui
-	rm -rf *.edn
-	rm -rf reports*
-	rm -rf ${PROJECT}_stub.v
-	rm -rf ${PROJECT}_funcsim.v
-	rm -rf ${PROJECT}.gen
-	rm -rf ${PROJECT}.ip_user_files
-	rm -rf dfx_runtime.txt
+	make -C ips/xilinx_clock_manager/ clean
+	make -C ips/xilinx_mem_8192x32/ clean
+	make -C ips/xilinx_mem_32768x32_dp/ clean
+	make -C ips/xilinx_fp_fma/ clean
+	make -C pulpino clean
+	make -C pulpemu clean
+	make -C sw clean
