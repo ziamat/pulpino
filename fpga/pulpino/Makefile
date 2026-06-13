@@ -1,9 +1,10 @@
+# Modified by Achmad Muhajir (22/500339/TK/54839)
 NAME:=RISCY
 PROJECT:=pulpino
 
 all:
 	vivado -mode batch -source tcl/run.tcl
-	# ./postsynth_names.py
+# ./postsynth_names.py
 
 gui:
 	vivado -mode gui -source tcl/run.tcl &
@@ -21,6 +22,10 @@ clean:
 	rm -rf vivado*
 	rm -rf .Xil
 	rm -rf xgui
-	rm -rf ${PROJECT}.edn
+	rm -rf *.edn
+	rm -rf reports*
 	rm -rf ${PROJECT}_stub.v
 	rm -rf ${PROJECT}_funcsim.v
+	rm -rf ${PROJECT}.gen
+	rm -rf ${PROJECT}.ip_user_files
+	rm -rf dfx_runtime.txt
