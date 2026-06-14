@@ -11,7 +11,7 @@ impl:
 	rm -rf .Xil
 	vivado -mode batch -source tcl/impl.tcl ${PROJECT}.xpr
 	cp ${PROJECT}.runs/impl_1/${PROJECT}_top.bit .
-	cp pulpemu.runs/impl_1/*.dcp .
+	cp ${PROJECT}.runs/impl_1/*.dcp .
 
 gui-synth:
 	vivado -mode gui -source tcl/run.tcl &
@@ -43,8 +43,8 @@ clean:
 	rm -rf vivado*
 	rm -rf xgui
 	rm -rf .Xil
-	rm -rf pulpemu_top*
-	rm -rf pulpemu.edf
+	rm -rf ${PROJECT}_top*
+	rm -rf ${PROJECT}.edf
 	rm -rf ${PROJECT}.gen
 	rm -rf ${PROJECT}.ip_user_files
 	rm -rf dfx_runtime.txt
