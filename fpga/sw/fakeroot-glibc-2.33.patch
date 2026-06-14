@@ -1,0 +1,15 @@
+# Added by Achmad Muhajir (22/500339/TK/54839)
+# Fix for glibc 2.33 compatibility where _STAT_VER is removed
+--- a/libfakeroot.c
++++ b/libfakeroot.c
+@@ -30,6 +30,10 @@
+    fakeroot
+    always bombs. Simple fix:
+ */
++#ifndef _STAT_VER
++#define _STAT_VER 0
++#endif
++
+ #define _GNU_SOURCE
+ 
+ #define FAKEROOT_LIBFAKEROOT

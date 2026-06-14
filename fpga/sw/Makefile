@@ -1,3 +1,5 @@
+# Modified by Achmad Muhajir (22/500339/TK/54839)
+
 PWD=$(CURDIR)
 NCORES=4
 ARM_TOOLCHAIN_PATH := $(shell which arm-xilinx-linux-gnueabi-gcc)
@@ -5,7 +7,7 @@ ARM_TOOLCHAIN_PATH := $(shell dirname $(ARM_TOOLCHAIN_PATH))
 ARM_TOOLCHAIN_PATH := $(shell dirname $(ARM_TOOLCHAIN_PATH))
 
 
-all: u-boot linux rootfs devtree fsbl sd_image/BOOT.BIN
+all: u-boot linux rootfs devtree
 
 
 ################################################################################
@@ -13,14 +15,15 @@ all: u-boot linux rootfs devtree fsbl sd_image/BOOT.BIN
 ################################################################################
 
 linux-xlnx:
-	git clone git://github.com/Xilinx/linux-xlnx.git
+	git clone https://github.com/Xilinx/linux-xlnx.git
 	cd linux-xlnx && git checkout tags/xilinx-v2015.1
+	cd linux-xlnx && sed -i 's/^YYLTYPE yylloc;/extern YYLTYPE yylloc;/' scripts/dtc/dtc-lexer.l scripts/dtc/dtc-lexer.lex.c_shipped
 
 linux-xlnx/.config: $(filter-out $(wildcard linux-xlnx), linux-xlnx)
 	cp ./kernel.config ./linux-xlnx/.config
 
 linux-xlnx/arch/arm/boot/uImage: linux-xlnx/.config
-	cd linux-xlnx && make ARCH=arm CROSS_COMPILE=arm-xilinx-linux-gnueabi- UIMAGE_LOADADDR=0x8000 uImage PATH=$(shell pwd)/u-boot-xlnx/tools/:${PATH} -j${NCORES}
+	cd linux-xlnx && make ARCH=arm CROSS_COMPILE=arm-xilinx-linux-gnueabi- UIMAGE_LOADADDR=0x8000 uImage PATH="$(shell pwd)/u-boot-xlnx/tools/:$${PATH}" -j${NCORES}
 
 sd_image/uImage: linux-xlnx/arch/arm/boot/uImage
 	mkdir -p sd_image
@@ -35,7 +38,7 @@ linux: sd_image/uImage
 ################################################################################
 
 u-boot-xlnx:
-	git clone git://github.com/Xilinx/u-boot-xlnx.git
+	git clone https://github.com/Xilinx/u-boot-xlnx.git
 ifeq ($(BOARD),zybo)
 	cd u-boot-xlnx && git checkout 84f81e5b8950748fd7ca967ecf0428affef7ecea
 else
@@ -68,8 +71,14 @@ u-boot: sd_image/u-boot.elf
 ################################################################################
 
 buildroot:
-	git clone git://git.buildroot.net/buildroot.git
+	GIT_SSL_NO_VERIFY=true git clone https://git.buildroot.net/buildroot.git
 	cd buildroot && git checkout tags/2015.05
+	cp fakeroot-glibc-2.33.patch buildroot/package/fakeroot/0002-glibc-2.33-compat.patch
+# Hijack fakeroot to use system binary for runtime glibc 2.33+ compatibility
+	echo 'define HOST_FAKEROOT_INSTALL_SYSTEM_SYMLINK' >> buildroot/package/fakeroot/fakeroot.mk
+	echo '	ln -sf /usr/bin/fakeroot $$(HOST_DIR)/usr/bin/fakeroot' >> buildroot/package/fakeroot/fakeroot.mk
+	echo 'endef' >> buildroot/package/fakeroot/fakeroot.mk
+	echo 'HOST_FAKEROOT_POST_INSTALL_HOOKS += HOST_FAKEROOT_INSTALL_SYSTEM_SYMLINK' >> buildroot/package/fakeroot/fakeroot.mk
 
 buildroot/.config: $(filter-out $(wildcard buildroot), buildroot)
 	cat ./buildroot.config | sed 's#BR2_TOOLCHAIN_EXTERNAL_PATH="/to/be/defined/"#BR2_TOOLCHAIN_EXTERNAL_PATH="$(ARM_TOOLCHAIN_PATH)"#g' > ./buildroot/.config
@@ -93,6 +102,7 @@ rootfs: sd_image/rootfs.tar
 
 sd_image/devicetree.dtb: device-tree/*.dts* $(filter-out $(wildcard linux-xlnx), linux-xlnx)
 ifeq ($(BOARD),zybo)
+	cd device-tree/zybo/ && rm -f pl.dtsi && ln -s ../pl.dtsi pl.dtsi
 	cd device-tree/zybo/ && $(PWD)/linux-xlnx/scripts/dtc/dtc -I dts -O dtb -o $(PWD)/sd_image/devicetree.dtb system.dts
 else
 	cd device-tree && ../linux-xlnx/scripts/dtc/dtc -I dts -O dtb -o ../sd_image/devicetree.dtb system.dts
@@ -105,17 +115,17 @@ devtree: sd_image/devicetree.dtb
 # fsbl
 ################################################################################
 
-hsi/pulpemu_top.sysdef: ../pulpemu/pulpemu.runs/impl_1/pulpemu_top.sysdef
-	cp $< $@
+# hsi/pulpemu_top.hwdef: ../pulpemu/pulpemu.runs/impl_1/pulpemu_top.hwdef
+# 	cp $< $@
 
-hsi/fsbl/executable.elf: hsi/pulpemu_top.sysdef
-	cd hsi && hsi -mode tcl -source ./fsbl.tcl
+# hsi/fsbl/executable.elf: hsi/pulpemu_top.hwdef
+# 	cd hsi && hsi -mode tcl -source ./fsbl.tcl
 
-sd_image/fsbl.elf: hsi/fsbl/executable.elf
-	cp $< $@
+# sd_image/fsbl.elf: hsi/fsbl/executable.elf
+# 	cp $< $@
 
-.PHONY: fsbl
-fsbl: sd_image/fsbl.elf
+# .PHONY: fsbl
+# fsbl: sd_image/fsbl.elf
 
 ################################################################################
 # get bitstream
@@ -128,8 +138,8 @@ sd_image/pulpemu_top.bit: ../pulpemu/pulpemu.runs/impl_1/pulpemu_top.bit
 # boot.bin
 ################################################################################
 
-sd_image/BOOT.BIN: sd_image/u-boot.elf sd_image/pulpemu_top.bit boot.bif sd_image/fsbl.elf
-	bootgen -image ./boot.bif -o i ./sd_image/BOOT.BIN -w on
+# sd_image/BOOT.BIN: sd_image/u-boot.elf sd_image/pulpemu_top.bit boot.bif sd_image/fsbl.elf
+# 	bootgen -image ./boot.bif -o i ./sd_image/BOOT.BIN -w on
 
 .PHONY: clean
 clean:
