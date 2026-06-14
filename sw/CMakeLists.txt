@@ -15,10 +15,12 @@ set(UNIX TRUE CACHE STRING "" FORCE)
 # If we set the system to Clang/GCC we get "-rdynamic"
 # however we need Linux for dynamic linking stuffs.
 # We should probably create a custom system name
-set(CMAKE_SYSTEM_NAME "Linux-CXX")
-
+set(CMAKE_SYSTEM_NAME "Generic")
 enable_language(C CXX ASM)
 project (pulp_software C)
+
+set(CMAKE_C_IMPLICIT_LINK_LIBRARIES "")
+set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES "")
 
 enable_testing()
 
@@ -51,7 +53,7 @@ endif()
 
 
 message(STATUS "GCC_MARCH= ${GCC_MARCH}")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32 -march=${GCC_MARCH} -Wa,-march=${GCC_MARCH}")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mabi=ilp32 -march=${GCC_MARCH} -Wa,-march=${GCC_MARCH}")
 set(CMAKE_OBJDUMP_FLAGS -Mmarch=${GCC_MARCH} -d)
 
 if(${GCC_MARCH} MATCHES "IMFDXpulpv2")
@@ -78,7 +80,7 @@ set(LDSCRIPT_BOOT "link.boot.ld" )
 set(PULP_PC_ANALYZE "pulp-pc-analyze" CACHE PATH "path to pulp pc analyze binary")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wextra -Wall -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -fdata-sections -ffunction-sections -fdiagnostics-color=always")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L${CMAKE_CURRENT_SOURCE_DIR}/ref -T${LDSCRIPT} -nostartfiles -Wl,--gc-sections")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -L${CMAKE_CURRENT_SOURCE_DIR}/ref -T${LDSCRIPT} -nostartfiles -nostdlib -Wl,--gc-sections")
 set(BOOT_LINKER_FLAGS      "-L${CMAKE_CURRENT_SOURCE_DIR}/ref -T${LDSCRIPT_BOOT} -nostartfiles -Wl,--gc-sections")
 
 set(CMAKE_CXX_COMPILER "${CMAKE_C_COMPILER}")

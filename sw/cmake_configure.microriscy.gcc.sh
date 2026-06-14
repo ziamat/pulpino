@@ -2,15 +2,15 @@
 
 #export PATH=/compilerpath/:${PATH}
 
-OBJDUMP=`which riscv32-unknown-elf-objdump`
-OBJCOPY=`which riscv32-unknown-elf-objcopy`
-
-COMPILER=`which riscv32-unknown-elf-gcc`
-RANLIB=`which riscv32-unknown-elf-ranlib`
+RISCV_PREFIX="riscv64-unknown-elf-"
+OBJDUMP=`which ${RISCV_PREFIX}objdump`
+OBJCOPY=`which ${RISCV_PREFIX}objcopy`
+COMPILER=`which ${RISCV_PREFIX}gcc`
+RANLIB=`which ${RISCV_PREFIX}ranlib`
 
 VSIM=`which vsim`
 
-TARGET_C_FLAGS="-O3 -m32 -g"
+TARGET_C_FLAGS="-O3 -mabi=ilp32 -march=rv32i_zicsr -g -D__riscv__ -nostdlib"
 #TARGET_C_FLAGS="-O2 -g -falign-functions=16  -funroll-all-loops"
 
 # if you want to have compressed instructions, set this to 1
@@ -28,7 +28,7 @@ ZERO_RV32M=0
 ZERO_RV32E=1
 
 # riscy with PULPextensions, it is assumed you use the ETH GCC Compiler
-GCC_MARCH="RV32I"
+GCC_MARCH="rv32i_zicsr"
 #compile arduino lib
 ARDUINO_LIB=1
 
@@ -51,6 +51,8 @@ cmake "$PULP_GIT_DIRECTORY"/sw/ \
     -DPL_NETLIST="$PL_NETLIST" \
     -DCMAKE_C_FLAGS="$TARGET_C_FLAGS" \
     -DCMAKE_OBJCOPY="$OBJCOPY" \
-    -DCMAKE_OBJDUMP="$OBJDUMP"
+    -DCMAKE_OBJDUMP="$OBJDUMP" \
+    -DCMAKE_C_COMPILER_WORKS=1 \
+    -DCMAKE_CXX_COMPILER_WORKS=1
 
 # Add -G "Ninja" to the cmake call above to use ninja instead of make
