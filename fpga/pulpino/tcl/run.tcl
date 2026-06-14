@@ -118,13 +118,13 @@ wait_on_run synth_1
 open_run synth_1
 
 # create reports
-# Changed from exec mkdir -p reports_${NAME}/ by Achmad Muhajir (22/500339/TK/54839)
 exec mkdir reports_${NAME}/
-# Removed exec rm -rf reports_${NAME}/* by Achmad Muhajir (22/500339/TK/54839)
 check_timing                                                            -file reports_${NAME}/pulpino.check_timing.rpt 
 report_timing -max_paths 100 -nworst 100 -delay_type max -sort_by slack -file reports_${NAME}/pulpino.timing_WORST_100.rpt
 report_timing -nworst 1 -delay_type max -sort_by group                  -file reports_${NAME}/pulpino.timing.rpt
 report_utilization -hierarchical                                        -file reports_${NAME}/pulpino.utilization.rpt
+report_power                                                            -file reports_${NAME}/pulpino.power.rpt
+report_timing_summary                                                   -file reports_${NAME}/pulpino.timing_summary.rpt
 
 # save EDIF netlist
 write_edif -force pulpino.edn
