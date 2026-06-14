@@ -2,7 +2,7 @@ CC     = arm-xilinx-linux-gnueabi-gcc
 CFLAGS =
 
 ifeq ($(BOARD),zybo)
-	CFLAGS += -DZYBO
+	CFLAGS += -DZYBO -static
 endif
 
 all: spiload
