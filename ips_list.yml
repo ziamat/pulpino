@@ -62,7 +62,7 @@ axi/core2axi:
   commit: pulpinov1
 
 adv_dbg_if:
-  commit: pulpinov1
+  commit: c440ae850a680a2962edf142c8d7e52c3cfed221
 
 riscv:
   commit: pulpinov1
