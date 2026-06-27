@@ -433,7 +433,7 @@ int main(int argc, char **argv)
   close(fd);
 
   // Start device and wait for timeout (if any)
-  set_boot_addr(0x00000000);
+  set_boot_addr(0x00000080);
 
   if (arguments.timeout > 0) {
     console_thread_start();
