@@ -257,6 +257,7 @@ Pastikan SD Card Anda telah dipartisi dan diformat dengan benar melalui Linux:
 1. Salin berkas boot berikut ke partisi **BOOT (FAT32)** SD Card:
    - `uImage` (Kernel Linux Zynq dari WSL Bagian 4)
    - `devicetree.dtb` (Device tree terkompilasi dari WSL Bagian 4)
+   - `spiload` (utility spiloader dari WSL Bagian 4)
    - `BOOT.BIN` (Hasil dari Vitis Bagian 5)
    - `spi_stim.txt` (Hasil kompilasi program Bagian 6)
 3. Ekstrak Rootfs Linux (`rootfs.tar` hasil WSL Bagian 4) ke partisi ext4 SD Card.
